@@ -1,3 +1,7 @@
+/* === AWB v2.0: EXTREME DANGER EDITION (FIXED VISIBILITY) === */
+
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -5,69 +9,78 @@
 }
 
 body {
-    background-color: #000000;
-    color: #00ff41;
-    font-family: 'Courier New', Courier, monospace;
+    background-color: #000000; /* Pure Black */
+    color: #00ff41; /* Matrix Green */
+    font-family: 'Share Tech Mono', 'Courier New', monospace;
     overflow-x: hidden;
 }
 
-body::before {
-    content: "";
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-    z-index: -1;
-    background-size: 100% 2px, 3px 100%;
-    pointer-events: none;
-}
-
+/* Hazard Warning Border */
 .header {
     text-align: center;
-    padding: 30px;
-    border-bottom: 2px solid #00ff41;
-    box-shadow: 0 0 15px rgba(0, 255, 65, 0.5);
-    background: #0a0a0a;
+    padding: 40px 20px;
+    background: #050505;
+    border-bottom: 4px solid #ff0000;
+    position: relative;
+    box-shadow: 0 5px 30px rgba(255, 0, 0, 0.5);
+}
+
+/* Kaale-Laal Warning Strips */
+.header::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 10px;
+    background: repeating-linear-gradient(45deg, #ff0000, #ff0000 20px, #000 20px, #000 40px);
 }
 
 .header h1 {
-    font-size: 2.5rem;
+    font-size: 3.5rem;
     text-transform: uppercase;
-    letter-spacing: 5px;
-    text-shadow: 0 0 10px #00ff41, 0 0 20px #00ff41;
-    color: #fff;
+    letter-spacing: 10px;
+    color: #ffffff;
+    text-shadow: 0 0 10px #ffffff, 0 0 20px #ff0000, 0 0 40px #ff0000;
+    animation: glitch 2s infinite;
+}
+
+@keyframes glitch {
+  0%, 90%, 100% { text-shadow: 0 0 10px #fff, 0 0 20px #ff0000, 0 0 40px #ff0000; }
+  92% { text-shadow: 3px 0 #00ffff, -3px 0 #ff0000; }
+  94% { text-shadow: -3px 0 #00ffff, 3px 0 #ff0000; }
 }
 
 .header p {
     color: #ff0000;
-    margin-top: 10px;
-    text-shadow: 0 0 5px #ff0000;
-    letter-spacing: 2px;
+    margin-top: 15px;
+    letter-spacing: 4px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    animation: blink-warning 1s infinite;
 }
+
+@keyframes blink-warning { 50% { opacity: 0.2; } }
 
 .container {
     display: grid;
-    grid-template-columns: 1fr 2fr;
+    grid-template-columns: 350px 1fr;
     gap: 20px;
     padding: 30px;
 }
 
 .panel {
-    background: rgba(10, 10, 10, 0.95);
-    border: 1px solid #333;
-    padding: 20px;
-    border-radius: 2px;
-    box-shadow: 0 0 10px rgba(0, 255, 65, 0.1);
+    background: #050505; /* Solid Dark Background */
+    border: 2px solid #00ff41; /* Solid Green Border */
+    padding: 25px;
+    box-shadow: 0 0 20px rgba(0, 255, 65, 0.2);
+    position: relative;
 }
 
 .panel h2 {
-    border-bottom: 1px solid #00ff41;
+    border-bottom: 2px solid #00ff41;
     padding-bottom: 10px;
     margin-bottom: 20px;
     color: #00ff41;
-    text-shadow: 0 0 5px #00ff41;
+    text-shadow: 0 0 10px #00ff41;
+    font-size: 1.5rem;
 }
 
 .status-box {
@@ -76,100 +89,126 @@ body::before {
     justify-content: space-between;
     padding: 15px;
     background: #000;
-    border: 1px dashed #ff0000;
+    border: 2px solid #ff0000;
     margin-bottom: 20px;
-    font-size: 14px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #fff;
 }
 
 .dot {
-    height: 15px;
-    width: 15px;
+    height: 20px; width: 20px;
     border-radius: 50%;
     display: inline-block;
-    box-shadow: 0 0 10px currentColor;
 }
 
-.red { background-color: #ff0000; color: #ff0000; }
-.yellow { background-color: #ffff00; color: #ffff00; }
-.green { background-color: #00ff00; color: #00ff00; }
+.red { background-color: #ff0000; box-shadow: 0 0 20px #ff0000; animation: pulse-red 0.5s infinite; }
+.yellow { background-color: #ffff00; box-shadow: 0 0 20px #ffff00; }
+.green { background-color: #00ff00; box-shadow: 0 0 20px #00ff00; animation: pulse-green 1s infinite; }
 
+@keyframes pulse-red { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.2); } }
+@keyframes pulse-green { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(1.1); } }
+
+/* Heavy Industrial Buttons */
 button {
     background: #000;
     color: #00ff41;
-    border: 1px solid #00ff41;
-    padding: 12px;
+    border: 2px solid #00ff41;
+    padding: 15px;
     cursor: pointer;
     width: 100%;
     font-family: inherit;
-    transition: 0.2s;
+    transition: 0.1s;
     text-transform: uppercase;
     font-weight: bold;
-    margin-bottom: 10px;
-    letter-spacing: 1px;
+    margin-bottom: 12px;
+    letter-spacing: 2px;
+    font-size: 14px;
 }
 
 button:hover {
     background: #00ff41;
     color: #000;
-    box-shadow: 0 0 15px #00ff41;
+    box-shadow: 0 0 25px #00ff41;
+}
+
+button:active {
+    transform: scale(0.98);
 }
 
 button.danger {
-    border-color: #ff0000;
+    border: 2px solid #ff0000;
     color: #ff0000;
 }
 
 button.danger:hover {
     background: #ff0000;
     color: #000;
-    box-shadow: 0 0 15px #ff0000;
+    box-shadow: 0 0 25px #ff0000;
 }
 
-/* Smaller button for table actions */
 button.action-btn {
     width: auto;
-    padding: 5px 15px;
+    padding: 10px 25px;
     margin: 0;
     font-size: 12px;
 }
 
+/* Terminal Output - High Visibility */
 .terminal-log {
-    height: 300px;
-    background: #000;
-    border: 1px solid #333;
-    padding: 15px;
+    height: 400px;
+    background: #000000;
+    border: 2px solid #00ff41;
+    padding: 20px;
     overflow-y: auto;
-    font-size: 14px;
-    color: #aaa;
-    box-shadow: inset 0 0 10px #000;
+    font-size: 16px;
+    color: #ffffff; /* White text for max readability */
+    box-shadow: inset 0 0 20px #00ff41;
+    line-height: 1.5;
 }
 
-.terminal-log span {
-    color: #00ff41;
+.terminal-log span { 
+    color: #00ff41; 
+    text-shadow: 0 0 5px #00ff41;
+    font-weight: bold;
 }
 
-.terminal-log::-webkit-scrollbar { width: 5px; }
-.terminal-log::-webkit-scrollbar-track { background: #000; }
-.terminal-log::-webkit-scrollbar-thumb { background: #333; }
+.terminal-log::-webkit-scrollbar { width: 10px; }
+.terminal-log::-webkit-scrollbar-track { background: #000; border-left: 1px solid #333; }
+.terminal-log::-webkit-scrollbar-thumb { background: #00ff41; border: 1px solid #000; }
 
-/* Network Table Styling */
+/* Network Table - HUD Style */
 .network-table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 10px;
+    background: #000;
 }
 
 .network-table th, .network-table td {
-    border: 1px solid #333;
-    padding: 10px;
+    border: 1px solid #222;
+    padding: 15px 10px;
     text-align: left;
+    font-size: 16px;
+    color: #00ff41;
 }
 
 .network-table th {
-    color: #00ff41;
-    background: #0a0a0a;
+    color: #000;
+    background: #00ff41; /* Solid Green Header */
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border: 1px solid #000;
 }
 
 .network-table tr:hover {
-    background: #111;
+    background: rgba(0, 255, 65, 0.1);
+}
+
+/* Modal (Pop-up) */
+#details-modal {
+    border: 2px solid #ff0000 !important;
+    box-shadow: 0 0 50px rgba(255, 0, 0, 0.5) !important;
+    background: #000 !important;
+    color: #fff;
 }

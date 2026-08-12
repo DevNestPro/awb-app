@@ -14,8 +14,10 @@
     </div>
 
     <div class="container">
+        <!-- Left Sidebar (Controls) -->
         <div class="panel">
             <h2>> SYSTEM_CONTROL</h2>
+            
             <div class="status-box">
                 <div>
                     <strong>STATUS:</strong> <span id="hw-mode">INITIALIZING...</span><br>
@@ -23,13 +25,25 @@
                 </div>
                 <span class="dot red" id="hw-dot"></span>
             </div>
+
             <button onclick="checkHw()">[ 01 ] Refresh Hardware</button>
             <button class="danger" onclick="startMonitor()">[ 02 ] Enable Monitor Mode</button>
             <button class="danger" onclick="stopMonitor()">[ 03 ] Disable Monitor Mode</button>
             <button class="danger" onclick="scanNetworks()">[ 04 ] Scan Networks (20s)</button>
-            <button class="danger" onclick="crackPassword()">[ 05 ] Crack Captured Handshake</button>
+            
+            <div style="margin-top: 20px; border-top: 1px solid #333; padding-top: 10px;">
+                <button class="danger" onclick="launchAttack()">[ 05 ] Start Attack (Infinite)</button>
+                <button class="danger" onclick="stopAttack()">[ 06 ] STOP Attack</button>
+            </div>
+            
+            <div style="margin-top: 20px; border-top: 1px solid #333; padding-top: 10px;">
+                <button class="danger" onclick="crackPassword('start')">[ 07 ] Start Cracking</button>
+                <button class="danger" onclick="crackPassword('resume')">[ 08 ] Resume Cracking</button>
+                <button class="danger" onclick="stopCrack()">[ 09 ] STOP Cracking</button>
+            </div>
         </div>
 
+        <!-- Right Main Area (Output/Logs) -->
         <div class="panel">
             <h2>> LIVE_TERMINAL_OUTPUT</h2>
             <div class="terminal-log" id="terminal-output">
@@ -39,6 +53,7 @@
         </div>
     </div>
 
+    <!-- Bottom Area (Network Table) -->
     <div class="container" style="grid-template-columns: 1fr;">
         <div class="panel">
             <h2>> DISCOVERED_NETWORKS</h2>
