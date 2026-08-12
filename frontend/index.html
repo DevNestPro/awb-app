@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AWB v2.0 | Auto-WiFi Breaker</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="header">
+        <h1>Auto-WiFi Breaker v2.0</h1>
+        <p>>> UNAUTHORIZED ACCESS PROHIBITED <<</p>
+    </div>
+
+    <div class="container">
+        <!-- Left Sidebar (Controls) -->
+        <div class="panel">
+            <h2>> SYSTEM_CONTROL</h2>
+            
+            <div class="status-box">
+                <div>
+                    <strong>STATUS:</strong> <span id="hw-mode">INITIALIZING...</span><br>
+                    <strong>INTERFACE:</strong> <span id="hw-iface">N/A</span>
+                </div>
+                <span class="dot red" id="hw-dot"></span>
+            </div>
+
+            <button onclick="checkHw()">[ 01 ] Refresh Hardware</button>
+            <button class="danger" onclick="startMonitor()">[ 02 ] Enable Monitor Mode</button>
+            <button class="danger" onclick="stopMonitor()">[ 03 ] Disable Monitor Mode</button>
+            <button class="danger" onclick="scanNetworks()">[ 04 ] Scan Networks (15s)</button>
+            <button class="danger" onclick="crackPassword()">[ 05 ] Crack Captured Handshake</button>
+        </div>
+
+        <!-- Right Main Area (Output/Logs) -->
+        <div class="panel">
+            <h2>> LIVE_TERMINAL_OUTPUT</h2>
+            <div class="terminal-log" id="terminal-output">
+                <span>root@kali</span>:~# System initialized...<br>
+                <span>root@kali</span>:~# Waiting for hardware check...<br>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Area (Network Table) -->
+    <div class="container" style="grid-template-columns: 1fr;">
+        <div class="panel">
+            <h2>> DISCOVERED_NETWORKS</h2>
+            <table class="network-table">
+                <thead>
+                    <tr>
+                        <th>ESSID (Wi-Fi Name)</th>
+                        <th>BSSID (MAC)</th>
+                        <th>CH</th>
+                        <th>ACTION</th>
+                    </tr>
+                </thead>
+                <tbody id="network-list">
+                    <tr><td colspan="4" style="text-align: center; color: #555;">No networks scanned yet. Click [04] Scan Networks.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="main.js"></script>
+</body>
+</html>
