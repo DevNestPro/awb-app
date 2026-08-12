@@ -1,3 +1,5 @@
+let scannedNetworks = []; // Scan kiye gaye networks ko save karne ke liye
+
 function logToTerminal(message) {
     const terminal = document.getElementById('terminal-output');
     terminal.innerHTML += `<span>root@kali</span>:~# ${message}<br>`;
@@ -21,60 +23,80 @@ function startMonitor() {
     logToTerminal("Enabling Monitor Mode... (This takes a few seconds)");
     fetch('/api/start_monitor')
     .then(response => response.json())
-    .then(data => {
-        logToTerminal(data.message);
-        checkHw(); // Auto-refresh status
-    });
+    .then(data => { logToTerminal(data.message); checkHw(); });
 }
 
 function stopMonitor() {
     logToTerminal("Disabling Monitor Mode...");
     fetch('/api/stop_monitor')
     .then(response => response.json())
-    .then(data => {
-        logToTerminal(data.message);
-        checkHw(); // Auto-refresh status
-    });
+    .then(data => { logToTerminal(data.message); checkHw(); });
 }
 
 function scanNetworks() {
-    logToTerminal("Scanning networks for 60 seconds... Please wait.");
+    logToTerminal("Scanning networks for 20 seconds... Please wait.");
     fetch('/api/scan_networks')
     .then(response => response.json())
     .then(data => {
         if(data.status === 'success') {
+            scannedNetworks = data.networks; // Networks ko save kar liya
             const list = document.getElementById('network-list');
-            list.innerHTML = ''; // Clear old list
+            list.innerHTML = '';
             
-            if (data.networks.length === 0) {
-                list.innerHTML = '<tr><td colspan="4" style="text-align: center;">No networks found.</td></tr>';
+            if (scannedNetworks.length === 0) {
+                list.innerHTML = '<tr><td colspan="7" style="text-align: center;">No networks found.</td></tr>';
                 logToTerminal("Scan complete. No networks found.");
                 return;
             }
 
-            // Add networks to table
-            data.networks.forEach(net => {
+            scannedNetworks.forEach((net, index) => {
                 list.innerHTML += `
                     <tr>
-                        <td>${net.essid}</td>
+                        <td onclick="showDetails(${index})" style="cursor:pointer; color:#00ff41;">${net.essid}</td>
                         <td>${net.bssid}</td>
                         <td>${net.channel}</td>
+                        <td>${net.signal}</td>
+                        <td>${net.encryption}</td>
+                        <td>${net.clients}</td>
                         <td><button class="action-btn danger" onclick="launchAttack('${net.bssid}', '${net.channel}', '${net.essid}')">ATTACK</button></td>
                     </tr>
                 `;
             });
-            logToTerminal(`Scan complete. Found ${data.networks.length} networks.`);
+            logToTerminal(`Scan complete. Found ${scannedNetworks.length} networks.`);
         } else {
             logToTerminal(`<span style='color:red'>Scan failed: ${data.message}</span>`);
         }
     });
 }
 
+function showDetails(index) {
+    const net = scannedNetworks[index];
+    const modal = document.getElementById('details-modal');
+    const content = document.getElementById('modal-content');
+    
+    // Asaan alfazon mein details
+    let clientText = net.clients > 0 ? `<span style="color:#00ff41;">${net.clients} device(s) are connected.</span> Good target for attack!` : `<span style="color:#ff0000;">No devices connected.</span> Handshake will be hard to capture.`;
+    
+    content.innerHTML = `
+        <strong>Wi-Fi Name:</strong> ${net.essid}<br>
+        <strong>MAC Address:</strong> ${net.bssid}<br>
+        <strong>Channel:</strong> ${net.channel}<br>
+        <strong>Signal Strength:</strong> ${net.signal}<br>
+        <strong>Security:</strong> ${net.encryption}<br>
+        <strong>Connected Devices:</strong> ${clientText}
+    `;
+    
+    modal.style.display = 'block';
+}
+
+function closeModal() {
+    document.getElementById('details-modal').style.display = 'none';
+}
+
 function launchAttack(bssid, channel, essid) {
     logToTerminal(`Targeting ${essid} (${bssid}) on Channel ${channel}...`);
-    logToTerminal("Launching Deauth Attack & Capturing Handshake (60s)...");
+    logToTerminal("Launching Burst Deauth Attack. Capturing Handshake (Max 70s)...");
     
-    // URL encode the parameters
     const url = `/api/launch_attack?bssid=${encodeURIComponent(bssid)}&channel=${encodeURIComponent(channel)}`;
     
     fetch(url)
@@ -104,5 +126,4 @@ function crackPassword() {
     });
 }
 
-// Auto check hardware on page load
 window.onload = checkHw;

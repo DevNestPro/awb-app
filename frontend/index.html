@@ -14,10 +14,8 @@
     </div>
 
     <div class="container">
-        <!-- Left Sidebar (Controls) -->
         <div class="panel">
             <h2>> SYSTEM_CONTROL</h2>
-            
             <div class="status-box">
                 <div>
                     <strong>STATUS:</strong> <span id="hw-mode">INITIALIZING...</span><br>
@@ -25,15 +23,13 @@
                 </div>
                 <span class="dot red" id="hw-dot"></span>
             </div>
-
             <button onclick="checkHw()">[ 01 ] Refresh Hardware</button>
             <button class="danger" onclick="startMonitor()">[ 02 ] Enable Monitor Mode</button>
             <button class="danger" onclick="stopMonitor()">[ 03 ] Disable Monitor Mode</button>
-            <button class="danger" onclick="scanNetworks()">[ 04 ] Scan Networks (60s)</button>
+            <button class="danger" onclick="scanNetworks()">[ 04 ] Scan Networks (20s)</button>
             <button class="danger" onclick="crackPassword()">[ 05 ] Crack Captured Handshake</button>
         </div>
 
-        <!-- Right Main Area (Output/Logs) -->
         <div class="panel">
             <h2>> LIVE_TERMINAL_OUTPUT</h2>
             <div class="terminal-log" id="terminal-output">
@@ -43,7 +39,6 @@
         </div>
     </div>
 
-    <!-- Bottom Area (Network Table) -->
     <div class="container" style="grid-template-columns: 1fr;">
         <div class="panel">
             <h2>> DISCOVERED_NETWORKS</h2>
@@ -53,14 +48,24 @@
                         <th>ESSID (Wi-Fi Name)</th>
                         <th>BSSID (MAC)</th>
                         <th>CH</th>
+                        <th>Signal</th>
+                        <th>Security</th>
+                        <th>Devices</th>
                         <th>ACTION</th>
                     </tr>
                 </thead>
                 <tbody id="network-list">
-                    <tr><td colspan="4" style="text-align: center; color: #555;">No networks scanned yet. Click [04] Scan Networks.</td></tr>
+                    <tr><td colspan="7" style="text-align: center; color: #555;">No networks scanned yet. Click [04] Scan Networks.</td></tr>
                 </tbody>
             </table>
         </div>
+    </div>
+
+    <!-- Details Pop-up (Modal) -->
+    <div id="details-modal" style="display:none; position:fixed; top:20%; left:30%; width:40%; background:#000; border:1px solid #00ff41; padding:20px; box-shadow:0 0 20px #00ff41; z-index:100;">
+        <h2 style="color:#00ff41;">Network Details</h2>
+        <div id="modal-content" style="margin-top:15px; font-size:16px; line-height:1.5;"></div>
+        <button class="danger" onclick="closeModal()" style="margin-top:20px; width:auto; padding:5px 15px;">[ Close ]</button>
     </div>
 
     <script src="main.js"></script>
