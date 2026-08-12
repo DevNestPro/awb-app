@@ -1,6 +1,7 @@
 let scannedNetworks = [];
 let attackInterval = null;
 let crackInterval = null;
+let lastCrackMessage = ""; // Spam rokne ke liye variable
 
 function logToTerminal(message) {
     const terminal = document.getElementById('terminal-output');
@@ -46,7 +47,7 @@ function scanNetworks() {
             scannedNetworks.forEach((net, index) => {
                 list.innerHTML += `
                     <tr>
-                        <td onclick="showDetails(${index})" style="cursor:pointer; color:#00ff41;">${net.essid}</td>
+                        <td onclick="toggleDetails(${index})" style="cursor:pointer; color:#00ff41;">${net.essid} [+]</td>
                         <td>${net.bssid}</td>
                         <td>${net.channel}</td>
                         <td>${net.signal}</td>
@@ -55,6 +56,7 @@ function scanNetworks() {
                         <td><button class="action-btn danger" onclick="selectTarget('${net.bssid}', '${net.channel}', '${net.essid}')">SELECT</button></td>
                     </tr>
                 `;
+                list.innerHTML += `<tr id="details-${index}" class="details-row" style="display: none;"><td colspan="7"></td></tr>`;
             });
             logToTerminal(`Scan complete. Found ${scannedNetworks.length} networks.`);
         } else {
@@ -63,25 +65,26 @@ function scanNetworks() {
     });
 }
 
-function showDetails(index) {
+function toggleDetails(index) {
+    const row = document.getElementById(`details-${index}`);
     const net = scannedNetworks[index];
-    const modal = document.getElementById('details-modal');
-    const content = document.getElementById('modal-content');
-    let clientText = net.clients > 0 ? `<span style="color:#00ff41;">${net.clients} device(s) connected.</span> Good target!` : `<span style="color:#ff0000;">No devices connected.</span> Hard to capture handshake.`;
-    content.innerHTML = `
-        <strong>Wi-Fi Name:</strong> ${net.essid}<br>
-        <strong>MAC Address:</strong> ${net.bssid}<br>
-        <strong>Channel:</strong> ${net.channel}<br>
-        <strong>Signal Strength:</strong> ${net.signal}<br>
-        <strong>Security:</strong> ${net.encryption}<br>
-        <strong>Connected Devices:</strong> ${clientText}
-    `;
-    modal.style.display = 'block';
+
+    if (row.style.display === 'none') {
+        let clientText = net.clients > 0 ? `<span style="color:#00ff41;">${net.clients} device(s) connected. Good target!</span>` : `<span style="color:#ff0000;">No devices captured in this scan window.</span>`;
+        row.cells[0].innerHTML = `
+            <strong>Wi-Fi Name (ESSID):</strong> ${net.essid}<br>
+            <strong>MAC Address (BSSID):</strong> ${net.bssid}<br>
+            <strong>Channel:</strong> ${net.channel}<br>
+            <strong>Signal Strength (PWR):</strong> ${net.pwr} dBm (${net.signal})<br>
+            <strong>Security Protocol:</strong> ${net.encryption}<br>
+            <strong>Connected Devices:</strong> ${clientText}
+        `;
+        row.style.display = 'table-row';
+    } else {
+        row.style.display = 'none';
+    }
 }
 
-function closeModal() { document.getElementById('details-modal').style.display = 'none'; }
-
-// Attack Logic
 let targetBSSID = null;
 let targetChannel = null;
 
@@ -92,13 +95,12 @@ function selectTarget(bssid, channel, essid) {
 }
 
 function launchAttack() {
-    if(!targetBSSID) { logToTerminal("Error: Please select a target network first."); return; }
+    if(!targetBSSID) { logToTerminal("Error: Please SELECT a target network first."); return; }
     logToTerminal(`Launching Infinite Attack on ${targetBSSID}...`);
     fetch(`/api/launch_attack?bssid=${targetBSSID}&channel=${targetChannel}`)
     .then(res => res.json())
     .then(data => {
         logToTerminal(data.message);
-        // Start polling status
         attackInterval = setInterval(checkAttackStatus, 3000);
     });
 }
@@ -107,10 +109,7 @@ function stopAttack() {
     logToTerminal("Sending STOP signal to attack...");
     fetch('/api/stop_attack')
     .then(res => res.json())
-    .then(data => {
-        clearInterval(attackInterval);
-        logToTerminal("Attack stopped.");
-    });
+    .then(data => { clearInterval(attackInterval); logToTerminal("Attack stopped."); });
 }
 
 function checkAttackStatus() {
@@ -128,7 +127,6 @@ function checkAttackStatus() {
     });
 }
 
-// Crack Logic
 function crackPassword(mode) {
     logToTerminal(`Starting cracking engine (Mode: ${mode})...`);
     fetch(`/api/crack_password?mode=${mode}`)
@@ -143,9 +141,10 @@ function stopCrack() {
     logToTerminal("Sending STOP signal to cracking engine...");
     fetch('/api/stop_crack')
     .then(res => res.json())
-    .then(data => {
-        clearInterval(crackInterval);
-        logToTerminal("Cracking paused/stopped.");
+    .then(data => { 
+        clearInterval(crackInterval); 
+        lastCrackMessage = ""; // Reset spam blocker
+        logToTerminal("Cracking paused/stopped."); 
     });
 }
 
@@ -160,8 +159,13 @@ function checkCrackStatus() {
             } else {
                 logToTerminal(`Crack status: ${data.message}`);
             }
+            lastCrackMessage = ""; // Reset
         } else {
-            logToTerminal(`Cracking in progress: ${data.message}`);
+            // AGAR MESSAGE PEHLE SE HI PRINT HO CHUKA HAI TOH DOBARA PRINT NA HO (Spam Fix)
+            if(data.message !== lastCrackMessage) {
+                logToTerminal(`Cracking in progress: ${data.message}`);
+                lastCrackMessage = data.message;
+            }
         }
     });
 }

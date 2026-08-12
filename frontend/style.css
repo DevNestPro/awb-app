@@ -205,10 +205,25 @@ button.action-btn {
     background: rgba(0, 255, 65, 0.1);
 }
 
-/* Modal (Pop-up) */
-#details-modal {
-    border: 2px solid #ff0000 !important;
-    box-shadow: 0 0 50px rgba(255, 0, 0, 0.5) !important;
-    background: #000 !important;
-    color: #fff;
+/* Dropdown Details Row CSS */
+.details-row td {
+    background: #0a0a0a !important;
+    border: 2px dashed #ff0000 !important;
+    padding: 20px !important;
+    font-size: 18px !important;
+    color: #fff !important;
+}
+.details-row strong { color: #00ff41; }
+
+/* === RESPONSIVE DESIGN (Mobile Ready) === */
+@media (max-width: 900px) {
+    .container { grid-template-columns: 1fr; padding: 15px; }
+    .header h1 { font-size: 1.8rem; letter-spacing: 2px; }
+    .header p { font-size: 0.9rem; }
+    .panel { padding: 15px; }
+    .panel h2 { font-size: 1.2rem; }
+    button { padding: 12px; font-size: 12px; }
+    .terminal-log { height: 250px; font-size: 14px; }
+    .network-table { font-size: 12px; }
+    .network-table th, .network-table td { padding: 8px 5px; }
 }
