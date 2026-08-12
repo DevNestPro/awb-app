@@ -38,7 +38,7 @@ function stopMonitor() {
 }
 
 function scanNetworks() {
-    logToTerminal("Scanning networks for 15 seconds... Please wait.");
+    logToTerminal("Scanning networks for 60 seconds... Please wait.");
     fetch('/api/scan_networks')
     .then(response => response.json())
     .then(data => {
@@ -72,7 +72,7 @@ function scanNetworks() {
 
 function launchAttack(bssid, channel, essid) {
     logToTerminal(`Targeting ${essid} (${bssid}) on Channel ${channel}...`);
-    logToTerminal("Launching Deauth Attack & Capturing Handshake (15s)...");
+    logToTerminal("Launching Deauth Attack & Capturing Handshake (60s)...");
     
     // URL encode the parameters
     const url = `/api/launch_attack?bssid=${encodeURIComponent(bssid)}&channel=${encodeURIComponent(channel)}`;
